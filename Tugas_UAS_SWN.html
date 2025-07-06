@@ -129,10 +129,18 @@
     }
 
     setInterval(() => {
-      db.ref("Sensor/" + jenis + "/latest").get().then(snapshot => {
-        const value = snapshot.val();
-        if (value !== null) {
-          updateChart(value);
+      db.ref("Sensor/" + jenis + "/history").limitToLast(8).once("value").then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          chart.data.labels = [];
+          chart.data.datasets[0].data = [];
+          let i = 0;
+          for (let key in data) {
+            chart.data.labels.push(`${i * 5}s`);
+            chart.data.datasets[0].data.push(data[key]);
+            i++;
+          }
+          chart.update();
         }
       });
     }, 5000);
