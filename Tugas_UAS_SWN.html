@@ -114,19 +114,16 @@
     });
 
     // === 4. Update data tiap 5 detik, hanya tampilkan 8 data terakhir ===
-    let detik = 0;
-    function updateChart(nilai) {
-      chart.data.labels.push(`${detik}s`);
-      chart.data.datasets[0].data.push(nilai);
-      detik += 5;
-
-      if (chart.data.labels.length > 8) {
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
-      }
-
-      chart.update();
+    const sortedKeys = Object.keys(data).sort((a, b) => Number(a) - Number(b)); // urutkan key numerik
+    chart.data.labels = [];
+    chart.data.datasets[0].data = [];
+    
+    for (let key of sortedKeys) {
+      const waktu = Number(key) * 5;  // karena key = count, waktu = count * 5 detik
+      chart.data.labels.push(`${waktu}s`);
+      chart.data.datasets[0].data.push(data[key]);
     }
+    chart.update();
 
     function loadChartData() {
       db.ref("Sensor/" + jenis + "/history").limitToLast(8).once("value").then(snapshot => {
